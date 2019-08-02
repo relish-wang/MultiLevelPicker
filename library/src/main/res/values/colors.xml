@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="appColorPrimary">#FF571A</color>
+    <color name="color_f5">#F5F5F5</color>
+    <color name="color_ed">#EDEDED</color>
+    <color name="transparent">#00000000</color>
+    <color name="color_99">#999999</color>
+    <color name="white">#FFFFFF</color>
+</resources>
