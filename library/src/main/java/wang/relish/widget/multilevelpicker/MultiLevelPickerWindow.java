@@ -89,6 +89,7 @@ public class MultiLevelPickerWindow<T extends Node> extends PopupWindow {
             mAdapter1.setNewData((T) parent);
 
             if (selectedChild.id() != mDefaultRootId) {//是全部的话 后面2级不展示啦
+                selectedChild.setSelectedChild(-1);
                 //noinspection unchecked
                 mAdapter2.setNewData((T) selectedChild);
             }
@@ -111,6 +112,7 @@ public class MultiLevelPickerWindow<T extends Node> extends PopupWindow {
             mAdapter2.setNewData((T) parent);
 
             // 3 展示子树
+            selectedChild.setSelectedChild(-1);
             //noinspection unchecked
             mAdapter3.setNewData((T) selectedChild);
         });
