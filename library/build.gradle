@@ -32,3 +32,5 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:1.0.0"
 
 }
+
+apply from: 'https://raw.githubusercontent.com/relish-wang/script/master/groovy/upload/push_to_jcenter.gradle'

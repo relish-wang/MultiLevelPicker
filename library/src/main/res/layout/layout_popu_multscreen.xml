@@ -54,9 +54,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="#FFFFFF"
+                android:background="@color/appColorSecondary"
                 android:text="关闭"
-                android:textColor="#333333"
+                android:textColor="@color/buttonTextColor"
                 android:textSize="18sp"/>
 
             <Button
@@ -64,9 +64,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="#FF571A"
+                android:background="@color/appColorPrimary"
                 android:text="确定"
-                android:textColor="#333333"
+                android:textColor="@color/buttonTextColor"
                 android:textSize="18sp"/>
 
 

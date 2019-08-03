@@ -15,28 +15,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 /**
- * 修 改 者:  wangxin<br>
- * 修改时间: 20190730<br>
- * 修改原因: 电子教案2.0-要求被选择的前一级菜单仍然高亮<br>
- * <pre>
- *     author : cris
- *     time   : 2019/07/15
- *     desc   :
- * </pre>
+ * @author relish <a href="mailto:relish.wang@gmail.com">Contact me.</a>
+ * @since 20190802
  */
 public class MultiLevelPickerWindow<T extends Node> extends PopupWindow {
 
     private RecyclerView rv1, rv2, rv3;
 
-    private int selectedLevel = 0;
-    private T selectedItem;
+    private int selectedLevel = -1;
+    private T selectedItem = null;
 
     private MultiLevelItemAdapter<T> mAdapter1, mAdapter2, mAdapter3;
 
     /**
      * 储存已选择的数据
      */
-    private long[] storage = new long[]{0L/* 全部 */, -1L, -1L};
+    private long[] storage = new long[]{-1L/* 全部 */, -1L, -1L};
 
     public MultiLevelPickerWindow(Context context) {
         init(context);
@@ -45,7 +39,7 @@ public class MultiLevelPickerWindow<T extends Node> extends PopupWindow {
     private View mRootView;
 
 
-    public void init(final Context context) {
+    private void init(final Context context) {
         mRootView = LayoutInflater.from(context).inflate(
                 R.layout.layout_popu_multscreen, null);
         buildView(mRootView);
@@ -84,13 +78,17 @@ public class MultiLevelPickerWindow<T extends Node> extends PopupWindow {
 
             //noinspection unchecked
             selectedItem = (T) selectedChild;
+            selectedLevel = 0;
             storage[0] = selectedChild.id();
+            storage[1] = -1;
+            storage[2] = -1;
+
 
             parent.setSelectedChild(selectedChild.id());
             //noinspection unchecked
             mAdapter1.setNewData((T) parent);
 
-            if (selectedChild.id() != 0) {//是全部的话 后面2级不展示啦
+            if (selectedChild.id() != mDefaultRootId) {//是全部的话 后面2级不展示啦
                 //noinspection unchecked
                 mAdapter2.setNewData((T) selectedChild);
             }
@@ -103,7 +101,9 @@ public class MultiLevelPickerWindow<T extends Node> extends PopupWindow {
             // 1 数据记录工作
             //noinspection unchecked
             selectedItem = (T) selectedChild;
+            selectedLevel = 1;
             storage[1] = selectedChild.id();
+            storage[2] = -1;
 
             // 2 刷新父节点
             parent.setSelectedChild(selectedChild.id());
@@ -121,6 +121,7 @@ public class MultiLevelPickerWindow<T extends Node> extends PopupWindow {
             // 1 数据记录工作
             //noinspection unchecked
             selectedItem = (T) selectedChild;
+            selectedLevel = 2;
             storage[2] = selectedChild.id();
 
             // 2 刷新父节点
@@ -131,107 +132,243 @@ public class MultiLevelPickerWindow<T extends Node> extends PopupWindow {
 
         view.findViewById(R.id.btnclose).setOnClickListener(v -> dismiss());
         view.findViewById(R.id.btndo).setOnClickListener(v -> {
-            if (mListener != null) {
-                //noinspection unchecked
-                mListener.onSelect(selectedItem);
-            }
+            callbackSelected(false);
             MultiLevelPickerWindow.this.dismiss();
         });
     }
 
-    public void updateData(T t) {
-        boolean isChanged = false;
+    /**
+     * 更新节点数据, 并采用降级策略
+     * 降级策略:
+     * 被选择级别节点被删除则选中它的上一级选中节点, 一级节点丢失, 则选中"全部"(即id为0的那项)
+     * 比如:
+     * 1 被选择的三级节点被删除(或三级菜单丢失),选中二级菜单
+     * 2 被选择的二级节点被删除(或二级菜单丢失),选中一级菜单
+     * 2 被选择的一级节点被删除(或二级菜单丢失),选中一级菜单的"全部"(要是全部节点也没有? 就恢复无选择状态)
+     *
+     * @return 是否发生节点变更(节点丢失, backup策略启动)
+     */
+    public boolean updateData(T t) {
+        boolean isDownGraded = false;
         if (t == null) {
             mAdapter1.setNewData(null);
             mAdapter2.setNewData(null);
             mAdapter3.setNewData(null);
-            return;
+            return false;
         }
         /* ***************** 1级 ***************** */
         // 1级数据监测与校准
+        if (storage[0] < 0) {
+            // 第一次进来 或 没选择过
+            mAdapter1.setNewData(t);
+            mAdapter2.setNewData(null);
+            mAdapter3.setNewData(null);
+            return false;
+        }
         // 从内存中读取上次选中的一级菜单ID
         t.setSelectedChild(storage[0]);
         // 尝试获取上次选中的一级目录节点
-        @Nullable Node selectedLevel1 = t.getSelectedChild();
+        //noinspection unchecked
+        @Nullable T selectedLevel1 = (T) t.getSelectedChild();
         //noinspection StatementWithEmptyBody
         if (selectedLevel1 != null) { // 找到了上次选中的节点
-            // as normal. do nothing.
-        } else { // 没找到上次选中的节点
-            isChanged = true;
-            storage[0] = 0; // 切到"全部"
+            // as normal. do nothing. 不用给selectedItem赋值
+        } else { // 没找到上次选中的一级节点
+            isDownGraded = true;
+            storage[0] = mDefaultRootId; // 切到"全部"
             t.setSelectedChild(storage[0]);
             // 重点: 当原来选择的一级目录被删除后, 选择"全部"
             //noinspection unchecked
-            callbackSelected((T) t.getSelectedChild());
+            T all = (T) t.getSelectedChild();
+            if (all != null) { // 找到了全部
+                selectedItem = all;
+                selectedLevel = 0;
+                callbackSelected(true);
+                storage[0] = all.id();
+                storage[1] = -1;
+                storage[2] = -1;
+            } else { // 没找到全部, 降级到未选择状态
+                selectedItem = null;
+                selectedLevel = -1;
+                callbackSelected(true);
+                storage[0] = -1;
+                storage[1] = -1;
+                storage[2] = -1;
+            }
         }
         mAdapter1.setNewData(t);
-        if (isChanged) {
+        if (isDownGraded) {
             mAdapter2.setNewData(null);
             mAdapter3.setNewData(null);
-            return;
+            return true;
         }
 
         /* ***************** 2级 ***************** */
         //noinspection unchecked
-        List<T> children = (List<T>) t.children();
-        if (children == null) {
+        List<T> secondList = (List<T>) t.children();
+        if (secondList == null) {
             //noinspection StatementWithEmptyBody
-            if (selectedLevel > 0) {// 说明之前选中的二级目录被删除了
-                //noinspection unchecked
-                callbackSelected((T) selectedLevel1);
-                isChanged = true;
+            if (selectedLevel > 0) {// 说明之前选中的二或三级目录被删除了
+                isDownGraded = true; // useless, but for good reading.
+                selectedItem = selectedLevel1;
+                selectedLevel = 0;
+                callbackSelected(true);
+                storage[0] = selectedItem.id();
+                storage[1] = -1;
+                storage[2] = -1;
             } else {
                 // 之前选中的二级目录没被删, 本来就是选的一级目录，都不需要通知外界
             }
             mAdapter2.setNewData(null);
             mAdapter3.setNewData(null);
-            return;
+            return isDownGraded;
         }
-        //noinspection unchecked
-        T second = (T) selectedLevel1; // 二级菜单的父节点
+        if (storage[1] < 0) { // 表示本来就没选择二级菜单
+            mAdapter2.setNewData(null);
+            mAdapter3.setNewData(null);
+            return false;
+        }
+        //noinspection UnnecessaryLocalVariable
+        T second = selectedLevel1; // 二级菜单的父节点
         second.setSelectedChild(storage[1]);
-        // TODO 明天从这里开始！！！！！
-
-        // 2级数据监测与校准
-        Node selectedLevel2 = t.getSelectedChild();
+        //noinspection unchecked
+        T selectedLevel2 = (T) second.getSelectedChild(); // 尝试获取上次选择的二级菜单节点
+        //noinspection StatementWithEmptyBody
         if (selectedLevel2 != null) {
-            long id = selectedLevel2.id();
-            if (id != storage[1]) {
-                isChanged = true;
-                storage[1] = id;
-                //noinspection unchecked
-                selectedItem = (T) selectedLevel2;
-            }
+            // 之前选中的二级目录没被删, 且找到了.(有可能新增了菜单项, 且index也变了)
         } else {
-
+            // 之前的二级目录被删除
+            isDownGraded = true; // useless, but for good reading.
+            selectedItem = selectedLevel1;
+            selectedLevel = 0;
+            callbackSelected(true);
+            storage[0] = selectedItem.id();
+            storage[1] = -1;
+            storage[2] = -1;
+            mAdapter2.setNewData(null);
+            mAdapter3.setNewData(null);
+            return true;
         }
-
-
         mAdapter2.setNewData(second);
 
         /* ***************** 3级 ***************** */
         //noinspection unchecked
         List<T> thirdList = (List<T>) second.children();
         if (thirdList == null) {
+            //noinspection StatementWithEmptyBody
+            if (selectedLevel > 1) {// 说明之前选中的三级目录被删除了
+                isDownGraded = true; // useless, but for good reading.
+                selectedItem = selectedLevel2;
+                selectedLevel = 1;
+                callbackSelected(true);
+                storage[1] = selectedItem.id();
+                storage[2] = -1;
+            } else {
+                // 说明本来就没来选三级菜单
+            }
             mAdapter3.setNewData(null);
-            return;
+            return isDownGraded;
         }
-        //noinspection unchecked
-        T third = (T) second.getSelectedChild();
-        if (third == null) {
+        if (storage[2] < 0) { // 表示本来就没选择三级菜单
             mAdapter3.setNewData(null);
-            return;
+            return false;
         }
+        //noinspection UnnecessaryLocalVariable
+        T third = selectedLevel2; // 三级菜单的父节点
+        // 其实到了这里用selectedItem/selectedLevel和storage[2]已经没有区别
         third.setSelectedChild(storage[2]);
+        //noinspection unchecked
+        T selectedLevel3 = (T) third.getSelectedChild();// 尝试获取上次选择的三级菜单节点
+        //noinspection StatementWithEmptyBody
+        if (selectedLevel3 != null) {
+            // 之前选中的三级目录没被删, 且找到了.(有可能新增了菜单项, 且index也变了)
+        } else {
+            // 之前选择的三级菜单被删除了
+            isDownGraded = true; // useless, but for good reading.
+            selectedItem = selectedLevel2;
+            selectedLevel = 1;
+            callbackSelected(true);
+            storage[1] = selectedItem.id();
+            storage[2] = -1;
+            mAdapter3.setNewData(null);
+            return true;
+        }
         mAdapter3.setNewData(third);
+        return false;
     }
 
 
-    private void callbackSelected(T t) {
+    private void callbackSelected(boolean isDownGraded) {
+        if (isDownGraded) {
+            updateSelection();
+            if (mListener != null) {
+                //noinspection unchecked
+                mListener.onDownGraded(selectedLevel, selectedItem);
+            }
+            return;
+        }
         if (mListener != null) {
             //noinspection unchecked
-            mListener.onSelect(t);
+            mListener.onSelect(selectedLevel, selectedItem);
         }
+    }
+
+    /**
+     * 尝试刷新selectedLevel和selectedItem
+     * (其实可以把这部分工作放在updateData中, 但逻辑过于臃肿)
+     */
+    private void updateSelection() {
+        // 更新数据以确保selectedItem的其他值(除id以外的值变更)变更,比如修改了名字, 数量变化等
+        T root = mAdapter1.getTree();
+        if (root == null) return;// never occur
+        if (storage[0] < 0) return; // never occur
+        root.setSelectedChild(storage[0]);
+        //noinspection unchecked
+        T selectedLevel1 = (T) root.getSelectedChild();// 获取被选择的一级节点
+        if (selectedLevel1 == null) {
+            // 选择了一级目录, 却没找到节点，可能吗? 不可能，updateData中已采用降级策略
+            return;
+        }
+        // 代码执行到这句注释时, 已取到了正确的选中的一级节点
+        if (storage[1] < 0) { // 说明只选了一级节点
+            selectedLevel = 0;
+            selectedItem = selectedLevel1;
+            // 下面三行代码其实可以不用执行, how to say, insurance.
+            storage[0] = selectedLevel1.id();
+            storage[1] = -1;
+            storage[2] = -1;
+            return;
+        }
+        selectedLevel1.setSelectedChild(storage[1]);
+        // 代码执行到这句注释时, 说明选择了不止一级菜单(二级、三级 or more)
+        //noinspection unchecked
+        T selectedLevel2 = (T) selectedLevel1.getSelectedChild();// 获取被选择的二级节点
+        if (selectedLevel2 == null) {
+            // 选择了二级目录, 却没找到节点，可能吗? 不可能，updateData中已采用降级策略
+            return;
+        }
+        // 代码执行到这句注释时, 已取到了正确的选中的二级节点
+        if (storage[2] < 0) { // 说明只选到了二级节点
+            selectedLevel = 1;
+            selectedItem = selectedLevel2;
+            // 下面两行代码其实可以不用执行, how to say, insurance.
+            storage[1] = selectedLevel2.id();
+            storage[2] = -1;
+            return;
+        }
+        selectedLevel2.setSelectedChild(storage[2]);
+        // 代码执行到这句注释时, 说明选择了不止二级菜单(三级 or more)
+        //noinspection unchecked
+        T selectedLevel3 = (T) selectedLevel2.getSelectedChild();// 获取被选择的三级节点
+        if (selectedLevel3 == null) {
+            // 选择了三级目录, 却没找到节点，可能吗? 不可能，updateData中已采用降级策略
+            return;
+        }
+        // 代码执行到这句注释时, 已取到了正确的选中的三级节点
+        selectedLevel = 2;
+        selectedItem = selectedLevel3;
+        // 下面这行代码其实可以不用执行, how to say, insurance.
+        storage[2] = selectedLevel3.id();
     }
 
     public void show(View view) {
@@ -245,10 +382,17 @@ public class MultiLevelPickerWindow<T extends Node> extends PopupWindow {
     }
 
 
-    public OnSelectListener mListener;
+    private OnSelectListener mListener;
 
-    public void setOnSelectListener(OnSelectListener onSelectListener) {
-        mListener = onSelectListener;
+    public void setOnSelectListener(OnSelectListener l) {
+        setOnSelectListener(0L, l);
+    }
+
+    private long mDefaultRootId = -1;
+
+    public void setOnSelectListener(long defaultRootId, OnSelectListener l) {
+        mListener = l;
+        mDefaultRootId = defaultRootId;
     }
 
     public void removeSelectListener() {
@@ -258,7 +402,18 @@ public class MultiLevelPickerWindow<T extends Node> extends PopupWindow {
     }
 
     public interface OnSelectListener<T> {
-        void onSelect(T data);
+        /**
+         * @param selectLevel 被选择的菜单节点所处层级
+         * @param data        数据
+         */
+        void onSelect(int selectLevel, T data);
+
+        /**
+         * 当执行了降级策略时
+         *
+         * @param selectLevel -1 表示降级到了未选择状态
+         */
+        void onDownGraded(int selectLevel, T data);
 
         void onShow();
 

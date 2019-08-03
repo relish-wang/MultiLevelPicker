@@ -77,4 +77,9 @@ public class Data implements Node {
     public String getName() {
         return name;
     }
+
+    @Override
+    public String toString() {
+        return text() + "[" + id + "]";
+    }
 }

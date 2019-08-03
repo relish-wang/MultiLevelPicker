@@ -1,6 +1,7 @@
 package wang.relish.widget.multilevelpicker.sample;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -9,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import wang.relish.widget.multilevelpicker.MultiLevelPickerWindow;
 
@@ -34,8 +36,16 @@ public class MainActivity extends AppCompatActivity {
         }
         window.setOnSelectListener(new MultiLevelPickerWindow.OnSelectListener<Data>() {
             @Override
-            public void onSelect(Data data) {
+            public void onSelect(int level, Data data) {
                 tvText.setText(data.text());
+            }
+
+            @Override
+            public void onDownGraded(int selectLevel, Data data) {
+                Log.d("onDownGraded",String.format(Locale.ENGLISH, "降级到%d级: %s", selectLevel, data.toString()));
+                Toast.makeText(MainActivity.this,
+                        String.format(Locale.ENGLISH, "降级到%d级: %s", selectLevel, data.toString()),
+                        Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -48,7 +58,10 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "dismiss", Toast.LENGTH_SHORT).show();
             }
         });
-        window.updateData(generate());
+        boolean isDownGrade = window.updateData(generate());
+        if (isDownGrade) {
+            Toast.makeText(this, "降级策略启动", Toast.LENGTH_SHORT).show();
+        }
         window.show(tvText);
     }
 
@@ -63,13 +76,16 @@ public class MainActivity extends AppCompatActivity {
         // 200
         Data yiji = new Data(200, "一级", 13);
         List<Data> yijiChildren = new ArrayList<>();
-            Data erji = new Data(210, "二级", 10);
-            List<Data> erjiChildren = new ArrayList<>();
-                Data vnfdj = new Data(211, "vnfdj", isFirst?0:1);
-            erjiChildren.add(vnfdj);
-            erji.children = erjiChildren;
+        Data erji = new Data(210, "二级", 10);
+        List<Data> erjiChildren = new ArrayList<>();
+        Data vnfdj = new Data(211, "vnfdj", 1);
+
+        erjiChildren.add(vnfdj);
+        erji.children = erjiChildren;
         yiji.children = yijiChildren;
-        yijiChildren.add(erji);
+        if (isFirst) {
+            yijiChildren.add(erji);
+        }
         first.add(yiji);
         // 300
         Data sanji = new Data(300, "三级", 13);

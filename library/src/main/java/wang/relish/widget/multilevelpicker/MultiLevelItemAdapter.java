@@ -16,7 +16,7 @@ import java.util.List;
  * @author relish
  * @since 20190802
  */
-public class MultiLevelItemAdapter<T extends Node> extends
+/* package */ class MultiLevelItemAdapter<T extends Node> extends
         RecyclerView.Adapter<MultiLevelItemAdapter.VHolder> {
 
     private T tree;
@@ -24,7 +24,7 @@ public class MultiLevelItemAdapter<T extends Node> extends
 
     private int INDEX;
 
-    public MultiLevelItemAdapter(T tree, int index) {
+    MultiLevelItemAdapter(T tree, int index) {
         this.tree = tree;
         this.INDEX = index;
     }
@@ -85,28 +85,32 @@ public class MultiLevelItemAdapter<T extends Node> extends
         return children == null ? 0 : children.size();
     }
 
-    public void setNewData(T data) {
+    void setNewData(T data) {
         tree = data;
         notifyDataSetChanged();
     }
 
-    public class VHolder extends RecyclerView.ViewHolder {
+    class VHolder extends RecyclerView.ViewHolder {
 
         private TextView tvName;
 
-        public VHolder(View itemView) {
+        VHolder(View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tv_name);
         }
     }
 
-    public OnItemSelectListener mOnSelectListener;
+    private OnItemPickerListener mOnSelectListener;
 
-    public void setOnSelectListener(OnItemSelectListener onSelectListener) {
+    void setOnSelectListener(OnItemPickerListener onSelectListener) {
         mOnSelectListener = onSelectListener;
     }
 
-    public interface OnItemSelectListener<T extends Node> {
+    interface OnItemPickerListener<T extends Node> {
         void onSelect(T parent, T selectedChild);
+    }
+
+    T getTree(){
+        return tree;
     }
 }
