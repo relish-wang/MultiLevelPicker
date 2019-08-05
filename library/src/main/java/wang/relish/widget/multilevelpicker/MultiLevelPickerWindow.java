@@ -92,6 +92,8 @@ public class MultiLevelPickerWindow<T extends Node> extends PopupWindow {
                 selectedChild.setSelectedChild(-1);
                 //noinspection unchecked
                 mAdapter2.setNewData((T) selectedChild);
+            } else {
+                mAdapter2.setNewData(null);
             }
             mAdapter3.setNewData(null);
         });
