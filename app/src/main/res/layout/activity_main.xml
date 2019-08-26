@@ -12,6 +12,6 @@
         android:background="#F2F2F2"
         android:gravity="center"
         android:padding="8dp"
-        android:text="Hello World!" />
+        android:hint="请选择地区" />
 
 </LinearLayout>

@@ -44,11 +44,6 @@ public interface Node {
     /**
      * 返回被选中的child
      */
-    int getSelectedChildPosition();
-
-    /**
-     * 返回被选中的child
-     */
     Node getSelectedChild();
 
 }

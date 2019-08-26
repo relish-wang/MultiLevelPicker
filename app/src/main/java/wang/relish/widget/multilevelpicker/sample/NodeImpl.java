@@ -3,6 +3,7 @@ package wang.relish.widget.multilevelpicker.sample;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,16 +13,20 @@ import wang.relish.widget.multilevelpicker.Node;
  * @author relish <a href="mailto:relish.wang@gmail.com">Contact me.</a>
  * @since 20190802
  */
-public class Data implements Node {
+public class NodeImpl implements Node, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private long id;
-    private long selectedChildId;
     private String name;
-    private int count = 0;
+    private int count;
+    private List<NodeImpl> children = new ArrayList<>();
+    private transient long selectedChildId;
 
-    public List<Data> children = new ArrayList<>();
+    static final transient NodeImpl EMPTY = new NodeImpl(0, "全部", 0);
 
-    public Data(long id, String name, int count) {
+
+    public NodeImpl(long id, String name, int count) {
         this.id = id;
         this.name = name;
         this.count = count;
@@ -54,24 +59,20 @@ public class Data implements Node {
         return children;
     }
 
-    @Override
-    public int getSelectedChildPosition() {
-        if (children == null) return -1;
-        for (int i = 0; i < children.size(); i++) {
-            Data data = children.get(i);
-            if (data == null) continue;
-            if (data.id == selectedChildId) {
-                return i;
-            }
-        }
-        return -1;
+    public void setChildren(List<NodeImpl> children) {
+        this.children = children;
     }
 
     @Override
     public Node getSelectedChild() {
         int i = getSelectedChildPosition();
         if (i == -1) return null;
-        return children.get(i);
+        // in case of IndexOutOfBoundsException
+        if (i >= 0 && i < children.size()) {
+            return children.get(i);
+        } else {
+            return null;
+        }
     }
 
     public String getName() {
@@ -81,5 +82,17 @@ public class Data implements Node {
     @Override
     public String toString() {
         return text() + "[" + id + "]";
+    }
+
+    private int getSelectedChildPosition() {
+        if (children == null) return -1;
+        for (int i = 0; i < children.size(); i++) {
+            NodeImpl nodeImpl = children.get(i);
+            if (nodeImpl == null) continue;
+            if (nodeImpl.id == selectedChildId) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

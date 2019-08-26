@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">library</string>
+    <!-- 左侧关闭按钮的文案 -->
+    <string name="mlp_close_text">关闭</string>
+    <!-- 右侧侧关闭按钮的文案 -->
+    <string name="mlp_confirm_text">确定</string>
 </resources>

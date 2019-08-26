@@ -41,7 +41,7 @@ public class MultiLevelPickerWindow<T extends Node> extends PopupWindow {
 
     private void init(final Context context) {
         mRootView = LayoutInflater.from(context).inflate(
-                R.layout.layout_popu_multscreen, null);
+                R.layout.mlp_window_picker, null);
         buildView(mRootView);
 
         this.setOnDismissListener(() -> {
@@ -405,22 +405,50 @@ public class MultiLevelPickerWindow<T extends Node> extends PopupWindow {
         }
     }
 
+    /**
+     * 选择性实现方法用的适配器
+     */
+    public abstract class OnSelectAdapter implements OnSelectListener<T> {
+
+        @Override
+        public void onDownGraded(int selectLevel, @Nullable T data) {
+
+        }
+
+        @Override
+        public void onShow() {
+
+        }
+
+        @Override
+        public void onDismiss() {
+
+        }
+    }
+
     public interface OnSelectListener<T> {
         /**
          * @param selectLevel 被选择的菜单节点所处层级
          * @param data        数据
          */
-        void onSelect(int selectLevel, T data);
+        void onSelect(int selectLevel, @Nullable T data);
 
         /**
          * 当执行了降级策略时
          *
          * @param selectLevel -1 表示降级到了未选择状态
+         * @param data        当selectLevel为-1时, data为null
          */
-        void onDownGraded(int selectLevel, T data);
+        void onDownGraded(int selectLevel, @Nullable T data);
 
+        /**
+         * 展示时
+         */
         void onShow();
 
+        /**
+         * 消失时
+         */
         void onDismiss();
     }
 }

@@ -13,6 +13,7 @@ import java.util.List;
 
 /**
  * @param <T> 实现node接口的数据源
+ *
  * @author relish
  * @since 20190802
  */
@@ -34,7 +35,7 @@ import java.util.List;
     public VHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         View view = LayoutInflater.from(parent.getContext()).
-                inflate(R.layout.elec_item_multscreen, parent, false);
+                inflate(R.layout.mlp_item_chioce, parent, false);
         return new VHolder(view);
     }
 
@@ -50,17 +51,19 @@ import java.util.List;
 
         if (item.id() == tree.selectedChild()) {
             holder.tvName.setTextColor(ContextCompat.getColor(holder.tvName.getContext(),
-                    R.color.appColorPrimary));
+                    R.color.mlp_item_selected_text));
             if (INDEX == 0) {
-                holder.tvName.setBackgroundResource(R.color.color_f5);
+                holder.tvName.setBackgroundResource(R.color.mlp_bg_level_2);
             } else if (INDEX == 1) {
-                holder.tvName.setBackgroundResource(R.color.color_ed);
+                holder.tvName.setBackgroundResource(R.color.mlp_bg_level_3);
             } else if (INDEX == 2) {
                 holder.tvName.setBackgroundResource(R.color.transparent);
             }
         } else {
-            holder.tvName.setTextColor(ContextCompat.getColor(holder.tvName.getContext(),
-                    R.color.color_99));
+            holder.tvName.setTextColor(ContextCompat.getColor(
+                    holder.tvName.getContext(),
+                    R.color.mlp_item_unselected_text
+            ));
             holder.tvName.setBackgroundResource(R.color.transparent);
         }
 
@@ -110,7 +113,7 @@ import java.util.List;
         void onSelect(T parent, T selectedChild);
     }
 
-    T getTree(){
+    T getTree() {
         return tree;
     }
 }

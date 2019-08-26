@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="appColorPrimary">#FFFFDA44</color>
-    <color name="color_f5">#F5F5F5</color>
-    <color name="color_ed">#EDEDED</color>
-    <color name="transparent">#00000000</color>
-    <color name="color_99">#999999</color>
-    <color name="white">#FFFFFF</color>
-    <color name="appColorSecondary">#FFFFF4C8</color>
-    <color name="buttonTextColor">#333333</color>
+    <color name="transparent">@android:color/transparent</color>
+
+    <!-- 三级菜单的背景色(每一级的选中背景色用下一级的背景色) -->
+    <color name="mlp_bg_level_1">#FFFFFF</color>
+    <color name="mlp_bg_level_2">#F5F5F5</color>
+    <color name="mlp_bg_level_3">#EDEDED</color>
+
+    <!-- 选中选项的字体高亮色 -->
+    <color name="mlp_item_selected_text">#FF004DA0</color>
+    <!-- 未选中选项的字体高亮色 -->
+    <color name="mlp_item_unselected_text">#999999</color>
+
+    <!-- "关闭"、"确定"的字体色和背景色 -->
+    <color name="mlp_close_btn_text">#FFFFFF</color>
+    <color name="mlp_close_btn_bg">#66004DA0</color>
+    <color name="mlp_confirm_btn_text">#FFFFFF</color>
+    <color name="mlp_confirm_btn_bg">#FF004DA0</color>
 </resources>

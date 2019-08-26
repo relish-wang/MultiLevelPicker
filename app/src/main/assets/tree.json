@@ -1,0 +1,95 @@
+{
+  "id": -1,
+  "name": "全部",
+  "count": 21,
+  "children": [
+    {
+      "id": 100,
+      "name": "浙江省",
+      "count": 13,
+      "children": [
+        {
+          "id": 110,
+          "name": "杭州市",
+          "count": 19,
+          "children": [
+            {
+              "id": 111,
+              "name": "滨江区",
+              "count": 5,
+              "children": []
+            },
+            {
+              "id": 112,
+              "name": "西湖区",
+              "count": "7",
+              "children": []
+            },
+            {
+              "id": 113,
+              "name": "江干区",
+              "count": 4,
+              "children": []
+            },
+            {
+              "id": 115,
+              "name": "余杭区",
+              "count": 3,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 120,
+          "name": "湖州市",
+          "count": 9,
+          "children": [
+            {
+              "id": 121,
+              "name": "吴兴区",
+              "count": 5,
+              "children": []
+            },
+            {
+              "id": 122,
+              "name": "南浔区",
+              "count": 4,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 200,
+      "name": "江西省",
+      "count": 383,
+      "children": [
+        {
+          "id": 221,
+          "name": "南昌市",
+          "count": 102,
+          "children": []
+        },
+        {
+          "id": 222,
+          "name": "景德镇市",
+          "count": 281,
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": 300,
+      "name": "北京市",
+      "count": 0,
+      "children": []
+    },
+    {
+      "id": 400,
+      "name": "重庆市",
+      "count": 0,
+      "children": []
+    }
+  ]
+}

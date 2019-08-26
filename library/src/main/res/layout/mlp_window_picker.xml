@@ -21,7 +21,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@color/white"
+                android:background="@color/mlp_bg_level_1"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -29,7 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@color/color_f5"
+                android:background="@color/mlp_bg_level_2"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -37,7 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@color/color_ed"
+                android:background="@color/mlp_bg_level_3"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
 
 
@@ -54,9 +54,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@color/appColorSecondary"
-                android:text="关闭"
-                android:textColor="@color/buttonTextColor"
+                android:background="@color/mlp_close_btn_bg"
+                android:text="@string/mlp_close_text"
+                android:textColor="@color/mlp_close_btn_text"
                 android:textSize="18sp"/>
 
             <Button
@@ -64,9 +64,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@color/appColorPrimary"
-                android:text="确定"
-                android:textColor="@color/buttonTextColor"
+                android:background="@color/mlp_confirm_btn_bg"
+                android:text="@string/mlp_confirm_text"
+                android:textColor="@color/mlp_confirm_btn_text"
                 android:textSize="18sp"/>
 
 
